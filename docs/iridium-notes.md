@@ -22,8 +22,8 @@ Making a data connection
 Once the serial connection to the computer is working, wvdial can be used to bring up a
 PPP connection to the Iridium internet gateway. Details on this (and much else) can be
 found at Michael Ashley's [website](http://newt.phys.unsw.edu.au/~mcba/iridiumLinux.html) but the
-key part is wvdial.conf, which should look like this::
-
+key part is wvdial.conf, which should look like this:
+```
    [Modem0]
    Modem = /dev/ttyUSB0
    Baud = 19200
@@ -41,7 +41,7 @@ key part is wvdial.conf, which should look like this::
    Stupid Mode = 1
    Inherits = Modem0
    New PPPD = yes
-
+```
 The PPP demon has to negotiate the PPP link with the gateway, and the Iridium minutes clock is
 ticking the whole time; it's very much worth ensuring a high quality signal before attempting
 to connect, as this makes everything go faster. See the [mailasail website](http://www.mailasail.com/Support/Iridium-Bandwidth)
@@ -50,8 +50,8 @@ for details on this.
 Networking details
 ------------
 
-wvdial starts pppd after dialing successfully, and IP addresses look as follows::
-
+wvdial starts pppd after dialing successfully, and IP addresses look as follows:
+```
    --> local  IP address 192.168.11.214
    --> pppd: O[7f]
    --> remote IP address 192.168.11.254
@@ -59,23 +59,24 @@ wvdial starts pppd after dialing successfully, and IP addresses look as follows:
    --> primary   DNS address 12.127.17.72
    --> pppd: O[7f]
    --> secondary DNS address 204.97.212.10
-
+```
 192.168 is the standard class B for behind-firewall machines, and the nameservers are either nsX.sprintlink.net (X being 1, 2, or 3), or AT&T nameservers such as dns-rs2.bgtmo.ip.att.net.
 
-Running curl to get an https URL shows the following an Apache access.log::
+Running curl to get an https URL shows the following an Apache access.log:
+```
    12.47.179.48 - - [23/Apr/2016:00:16:21 +0100] "GET / HTTP/1.1" 200 271 "-" "curl/7.22.0 (x86_64-pc-linux-gnu) libcurl/7.22.0 OpenSSL/1.0.1 zlib/1.2.3.4 libidn/1.23 librtmp/2.3"
-
+```
 12.47.179.48 does not have a DNS name, but is owned by Iridium (provided by AT&T) according to
 the whois database.
 
 traceroute generally fails to return anything when run, but the packets are sent out and
 tcpdump shows ICMP packets coming back from the various hosts with an "ICMP time exceeded in-transit"
-message::
-
+message:
+```
   00:32:16.671378 IP 208.25.12.250 > 192.168.11.214: ICMP time exceeded in-transit, length 36
-
-This can be turned into a trace of addresses::
-
+```
+This can be turned into a trace of addresses:
+```
    192.168.11.254 (Iridium PPP gateway address from pppd)
    10.1.25.252
    192.168.3.254
@@ -96,19 +97,19 @@ This can be turned into a trace of addresses::
    193.195.25.69  gi6-1-0-dar3.lah.uk.cw.net
    194.159.161.89 anchor-access-4-g1-1.router.demon.net
    194.217.23.62  anchor-hg-4-g6-0-0-s2016.router.demon.net
-
+```
 Application usage over data network
 ------------
 As expected, latency is the key issue across the link, but the data latency appears to be highly
-variable and much greater than voice latency. Ping times on one run look as follows::
-
+variable and much greater than voice latency. Ping times on one run look as follows:
+```
    PING 192.168.20.254 (192.168.20.254) 56(84) bytes of data.
    64 bytes from 192.168.20.254: icmp_req=1 ttl=253 time=1643 ms
    64 bytes from 192.168.20.254: icmp_req=2 ttl=253 time=3438 ms
    64 bytes from 192.168.20.254: icmp_req=3 ttl=253 time=5401 ms
-
-and curl HTTP requests are variable as well::
-
+```
+and curl HTTP requests are variable as well:
+```
    tdolby@host:/$ time curl http://x.y.z.a/
    <html><body><h1>It works!</h1></body></html>
    
@@ -121,10 +122,10 @@ and curl HTTP requests are variable as well::
    real    0m19.554s
    user    0m0.007s
    sys     0m0.007s
-
+```
 SSL suffers significantly from this, with the back-and-forth negotiation at
-the beginning causing long delays::
-
+the beginning causing long delays:
+```
    --2016-05-13 23:46:48--  https://x.y.z.a/bin-small.xz
    Resolving x.y.z.a (x.y.z.a)... 1.2.3.4
    Connecting to x.y.z.a (x.y.z.a)|1.2.3.4|... connected.
@@ -146,7 +147,7 @@ the beginning causing long delays::
         0K .......... ....                                       100%  211 =72s
    
    2016-05-13 23:51:18 (211 B/s) - ‘sof.pdf’ saved [15283/15283]
-
+```
 The download time itself is long, taking 70-80 seconds, but the difference between
 start and end time is far greater; watching the wget command running, the main delay
 is in SSL negotiation and sending the HTTP request.
@@ -158,8 +159,8 @@ so the link isn't up for as long) and just as reliable.
 
 Output from query-modem.py for 9522
 ------------
-Running query-modem.py (with debugging turned on) for the A3LA-IG::
-
+Running query-modem.py (with debugging turned on) for the A3LA-IG:
+```
    INFO: Connecting to modem on port /dev/ttyUSB0 at 19200bps
    DEBUG: write: ATZ
    DEBUG: response: ['OK']
@@ -198,11 +199,11 @@ Running query-modem.py (with debugging turned on) for the A3LA-IG::
    DEBUG: write: AT+CSQ
    DEBUG: response: ['+CSQ:1', 'OK']
    modem.signalStrength 1
-   
+```
 Text message reading works as expected, as do most of the other commands, but AT+CSQ returns only one value without a comma anywhere; the python-gsmmodem signalStrength() regular expressions needed to be modified to handle this.
 
-The 9505 phones return the following::
-
+The 9505 phones return the following:
+```
    INFO: Connecting to modem on port /dev/ttyUSB0 at 19200bps
    DEBUG: write: ATZ
    DEBUG: response: ['OK']
@@ -238,7 +239,7 @@ The 9505 phones return the following::
    DEBUG: write: AT+CSQ
    DEBUG: response: ['+CSQ:099,099', 'OK']
    modem.signalStrength -1
-
+```
 In this case, AT+CSQ works in the technical sense that it returns the standard output with
 a comma, but always returns 99 (as documented) regardless of any signal strength.
 
@@ -262,13 +263,13 @@ stty --file=/dev/ttyUSB0  19200 cs8  -crtscts
 
 plus plugging in the entire assembly (power and serial) with both already connected
 seemed to cause it to spring to life. Started with 
-
+```
 AT
 OK
 ATI3
 SAC0307
 OK
-
+```
 and then continued to work fine (though the serial port was set to crtscts the first time,
 causing nothing to happen to begin with after the first lot of data).
 
