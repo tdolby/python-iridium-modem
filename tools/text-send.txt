@@ -1,0 +1,2 @@
+usage: send-text.py [-h] [--dev DEV] number number message
+send-text.py: error: the following arguments are required: message

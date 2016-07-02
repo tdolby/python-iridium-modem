@@ -6,6 +6,7 @@ import time
 import logging
 import threading
 import re
+import argparse
 
 sys.path.append('..')
 
@@ -16,32 +17,41 @@ if __name__ == '__main__':
     modem = IridiumModem('/dev/ttyUSB0', 19200)
     modem.connect()
     print('modem.imei '+format(modem.imei))
+    sys.stdout.flush() 
+    print('modem.networkName '+format(modem.networkName))
     sys.stdout.flush()
-    
+   
+    #try:
+    print('modem.geoLocation '+format(modem.geoLocation))
+    sys.stdout.flush()
+    #except:
+    #    pass
+
+    print('modem.systemTime '+format(modem.systemTime))
+    sys.stdout.flush()
+
+    try:
+        print('modem.testStuff '+modem.testStuff())
+        sys.stdout.flush()
+    except:
+        pass
+        
     print('modem.manufacturer '+format(modem.manufacturer))
     sys.stdout.flush()
     print('modem.model '+format(modem.model))
     sys.stdout.flush()
-    try:
-        print('modem.supportedCommands '+format(modem.supportedCommands))
-        sys.stdout.flush()
-    except:
-        print("supportedCommands ", sys.exc_info()[0])
-        sys.stdout.flush()
-        
+
     try:
         smsStore = modem.listStoredSms()
         print('modem.listStoredSms() '+format(smsStore))
         sys.stdout.flush()
-        print('smsStore[0].number '+format(smsStore[0].number))
-        sys.stdout.flush()
-        print('smsStore[0].text '+format(smsStore[0].text))
-        sys.stdout.flush()
-
+        for message in (smsStore):
+            print('message: '+format(message.number)+' '+format(message.text))
+            sys.stdout.flush()
     except:
         print("listStoredSms() ", sys.exc_info()[0])
         sys.stdout.flush()
-        
-    print('modem.signalStrength '+format(modem.signalStrength))
-    sys.stdout.flush()
+
+    #print('modem.signalStrength '+format(modem.signalStrength))
+    #sys.stdout.flush()
 
