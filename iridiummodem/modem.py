@@ -20,11 +20,66 @@ class PythonThreeFourSerialWrapper(Serial):
         super(PythonThreeFourSerialWrapper, self).__init__(port, baudrate, bytesize, parity, stopbits, timeout, xonxoff, rtscts, write_timeout, dsrdtr, inter_byte_timeout)
 
     def write(self, data):
-        super(PythonThreeFourSerialWrapper, self).write(bytes(data, 'iso-8859-1'));
+        if isinstance(data, bytearray) or isinstance(data, bytes):
+            super(PythonThreeFourSerialWrapper, self).write(data);
+        else:
+            super(PythonThreeFourSerialWrapper, self).write(bytes(data, 'iso-8859-1'));
 
     def read(self, size=1):
         retval = super(PythonThreeFourSerialWrapper, self).read(size)
         return retval.decode('iso-8859-1')
+
+class SBDMessage(object):
+    """ Abstract Short Burst Data message class """
+
+    # Sequence numbers are set by the ISU
+    def __init__(self, sequence = -1):
+        self.sequence = sequence
+
+class SBDTextMessage(SBDMessage):
+    """ Short Burst Data text message class """
+
+    # Sequence numbers are set by the ISU
+    def __init__(self, sequence = -1, text=''):
+        super(SBDTextMessage, self).__init__(sequence);
+        self.text = text
+
+    @property
+    def readMessage(self):
+        return text
+
+
+
+class SBDBinaryMessage(SBDMessage):
+    """ Short Burst Data binary message class """
+
+    # Sequence numbers are set by the ISU
+    def __init__(self, sequence = -1, data=bytearray(b'')):
+        super(SBDBinaryMessage, self).__init__(sequence);
+        self.data = data
+        
+    @property
+    def generateChecksum(self):
+        cksum = 0
+        for value in self.data:
+            cksum = cksum + value
+            cksum = cksum & 0x0000FFFF
+        retval = bytearray(2)
+        retval[0] = int(cksum/256)
+        retval[1] = int(cksum - (retval[0] * 256))
+        return retval
+    
+    def validateChecksum(self, checksum):
+        cksum = generateChecksum
+        if cksum != checksum:
+            return false
+        else:
+            return true
+
+    @property
+    def readMessage(self):
+        return data
+
 
 
 
@@ -56,6 +111,10 @@ class IridiumModem(GsmModem):
         self.MSSTM_REGEX = re.compile(r'^\-MSSTM:\s*([0-9A-Fa-f]+)')
         # -MSGEO: 4024,-100,4924,2c781713
         self.MSGEO_REGEX = re.compile(r'^\-MSGEO:\s*(-?\d+),(-?\d+),(-?\d+),([0-9A-Fa-f]+)')
+        # Used for SBD write
+        self.SBDWB_READY_REGEX = re.compile(r'^READY')
+        self.SBDWB_RESP_REGEX = re.compile(r'^(\d+)')
+        
         self.log.info('Connecting to modem on port %s at %dbps', self.port, self.baudrate)        
         self.wrapperSerial = PythonThreeFourSerialWrapper(self.port, self.baudrate, rtscts=1, timeout=50)
         try:
@@ -171,6 +230,33 @@ class IridiumModem(GsmModem):
             fixTime = self.iridiumToDatetime(msgeo.group(4))
             # print('lat '+format(lat)+' lon '+format(lon)+' time '+format(fixTime))
             return [lat, lon, fixTime]
+        else:
+            raise CommandError()
+
+    @property
+    def clearIsuSBDOutboundMessage(self):
+        response = self.write('AT+SBDD0')
+
+    @property
+    def clearIsuSBDInboundMessage(self):
+        response = self.write('AT+SBDD1')
+
+    @property
+    def getSBDStatus(self):
+        response = self.write('AT+SBDS')
+
+    # Used for testing!
+    @property
+    def copySentSBDToReceived(self):
+        response = self.write('AT+SBDTC')
+        
+    def writeSBDMessageToIsu(self, msg):
+        response = self.write('AT+SBDWB=5', expectedResponseTermSeq='READY')
+        ready = self.SBDWB_READY_REGEX.match(response[0])
+        if ready:
+            messageData = msg.data + msg.generateChecksum
+            response = self.write(messageData, writeTerm=b'')
+            code = self.SBDWB_RESP_REGEX.match(response[0])
         else:
             raise CommandError()
         
