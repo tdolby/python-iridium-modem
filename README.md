@@ -20,6 +20,13 @@ Note that this package overrides some pyserial interactions in python-gsmmodem
 in order to allow for python 3.4 compatiblity; ideally, this code would be in
 the base package.
 
+*Merge plans*
+
+The original author of python-gsmmodem appears to have stepped away from the
+project, but it has been picked up (and renamed python-gsmmodem-new) by @babca and
+is being moved forward again; this project should eventually be merged into the
+new project assuming PRs are accepted.
+
 Requirements
 ------------
 
