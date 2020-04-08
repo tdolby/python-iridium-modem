@@ -1,5 +1,6 @@
 #!/usr/bin/python3.4
 
+
 import serial
 import sys
 import time
@@ -28,6 +29,7 @@ if __name__ == '__main__':
     print('modem.model '+format(modem.model))
     sys.stdout.flush()
     # Takes around 9 seconds to complete for a 9522A; network delivery takes another second
+    # 9555A took four seconds
     sentSms = modem.sendSms(args.number, args.message, waitForDeliveryReport=False)
     # sentSms.status is always 0
     print('sentSms.status '+format(sentSms.status))

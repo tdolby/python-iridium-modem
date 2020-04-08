@@ -17,7 +17,7 @@ from iridiummodem.modem import IridiumModem
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Start a voice call')
-    parser.add_argument('--dev', dest='dev', default='/dev/ttyUSB0',
+    parser.add_argument('--dev', dest='dev', default='/dev/ttyACM0',
                         help='serial device name (default: %(default)s)')
     
     args = parser.parse_args()
@@ -29,10 +29,6 @@ if __name__ == '__main__':
     print('modem.model '+format(modem.model))
     sys.stdout.flush()
 
-    modem.geoLocation
-    
-    timeStruct = modem.systemTime
-    print('timeStruct '+format(timeStruct))
-    # This blows up with python3.4 on the PI :(
-    timeString = time.strftime("%Y-%m-%d-%H:%M:%S", timeStruct)
-    print('timeString '+format(timeString))
+    (lat, lon) = modem.gpsLocation
+
+    print('lat '+format(lat)+' lon '+format(lon))

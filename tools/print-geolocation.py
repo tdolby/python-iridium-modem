@@ -29,10 +29,6 @@ if __name__ == '__main__':
     print('modem.model '+format(modem.model))
     sys.stdout.flush()
 
-    modem.geoLocation
-    
-    timeStruct = modem.systemTime
-    print('timeStruct '+format(timeStruct))
-    # This blows up with python3.4 on the PI :(
-    timeString = time.strftime("%Y-%m-%d-%H:%M:%S", timeStruct)
-    print('timeString '+format(timeString))
+    (lat, lon, fixTime) = modem.geoLocation
+
+    print('lat '+format(lat)+' lon '+format(lon)+' fixTime '+format(fixTime))

@@ -1,0 +1,41 @@
+9522A with no message center defined:
+
+INFO: Connecting to modem on port /dev/ttyUSB1 at 19200bps
+INFO: Connecting to modem on port /dev/ttyUSB1 at 19200bps
+DEBUG: write: ATZ
+DEBUG: response: ['OK']
+DEBUG: write: ATE0
+DEBUG: response: ['ATE0\r', 'OK']
+DEBUG: write: AT+CFUN?
+DEBUG: response: ['ERROR']
+DEBUG: write: AT+CMEE=1
+DEBUG: response: ['OK']
+DEBUG: write: ATZ
+DEBUG: response: ['OK']
+DEBUG: write: ATE0
+DEBUG: response: ['ATE0\r', 'OK']
+DEBUG: write: AT&K3
+DEBUG: response: ['OK']
+DEBUG: write: AT&D2
+DEBUG: response: ['OK']
+DEBUG: write: AT+CGMM
+DEBUG: response: ['9522A', 'OK']
+modem.model 9522A
+DEBUG: write: AT+CMGS=34
+DEBUG: response: ['> ']
+DEBUG: write: 0021000CA1449765615947000017F4F29C0E32CBDF6D50529E26A7EB6D50AE26930501
+Traceback (most recent call last):
+  File "./send-text.py", line 31, in <module>
+    sentSms = modem.sendSms(args.number, args.message, waitForDeliveryReport=False)
+  File "/usr/local/lib/python3.7/dist-packages/gsmmodem/modem.py", line 924, in sendSms
+    result = lineStartingWith('+CMGS:', self.write(str(pdu), timeout=35, writeTerm=CTRLZ)) # example: +CMGS: xx
+  File "/usr/local/lib/python3.7/dist-packages/gsmmodem/modem.py", line 458, in write
+    responseLines = super(GsmModem, self).write(data + writeTerm, waitForResponse=waitForResponse, timeout=timeout, expectedResponseTermSeq=expectedResponseTermSeq)
+  File "/usr/local/lib/python3.7/dist-packages/gsmmodem/serial_comms.py", line 142, in write
+    raise TimeoutException(self._response)
+gsmmodem.exceptions.TimeoutException: ['+CMS ERROR:303']
+
+
+and with an invalid SIM card:
+
+gsmmodem.exceptions.TimeoutException: ['+CMS ERROR:322']

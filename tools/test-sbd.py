@@ -31,14 +31,17 @@ if __name__ == '__main__':
     except:
         pass
     modem.clearIsuSBDOutboundMessage
+    
     #msgToSend = SBDBinaryMessage(data=b'hello')
-    msgToSend = SBDBinaryMessage(data=b'\x07\x08\x09\x10\x11')
+    msgToSend = SBDBinaryMessage(data=bytearray(args.message, "utf-8"))
+    #msgToSend = SBDBinaryMessage(data=b'\x07\x08\x09\x10\x11')
     modem.writeSBDMessageToIsu(msgToSend)
     modem.getSBDStatus
-    modem.initiateOldSBDSession
-    #modem.clearIsuSBDInboundMessage
+    #modem.initiateOldSBDSession
+    modem.clearIsuSBDInboundMessage
     modem.getSBDStatus
     modem.copySentSBDToReceived
-    modem.readSBDMessageFromIsu
+    rcvMsg = modem.readSBDMessageFromIsu
     modem.clearIsuSBDInboundMessage
-    modem.testStuff
+    print("rcvMsg |"+format(rcvMsg.data)+"|");
+    #modem.testStuff

@@ -1,4 +1,4 @@
-#!/usr/bin/python3.4
+#!/usr/bin/env python
 
 import serial
 import sys
@@ -15,6 +15,7 @@ from iridiummodem.modem import IridiumModem
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
     modem = IridiumModem('/dev/ttyUSB0', 19200)
+    #modem = IridiumModem('/dev/ttyACM0', 38400)
     modem.connect()
     try:
         print('modem.imei '+format(modem.imei))
@@ -46,17 +47,17 @@ if __name__ == '__main__':
     print('modem.model '+format(modem.model))
     sys.stdout.flush()
 
-    try:
-        smsStore = modem.listStoredSms()
-        print('modem.listStoredSms() '+format(smsStore))
-        sys.stdout.flush()
-        for message in (smsStore):
-            print('message: '+format(message.number)+' '+format(message.text))
-            sys.stdout.flush()
-    except:
-        print("listStoredSms() ", sys.exc_info()[0])
-        sys.stdout.flush()
+#    try:
+#        smsStore = modem.listStoredSms()
+#        print('modem.listStoredSms() '+format(smsStore))
+#        sys.stdout.flush()
+#        for message in (smsStore):
+#            print('message: '+format(message.number)+' '+format(message.text))
+#            sys.stdout.flush()
+#    except:
+#        print("listStoredSms() ", sys.exc_info()[0])
+#        sys.stdout.flush()
 
-    #print('modem.signalStrength '+format(modem.signalStrength))
-    #sys.stdout.flush()
+    print('modem.signalStrength '+format(modem.signalStrength))
+    sys.stdout.flush()
 
