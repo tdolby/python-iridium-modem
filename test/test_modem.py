@@ -39,6 +39,7 @@ class TestIridiumModemGeneralApi(unittest.TestCase):
     def setUp(self):
         # Override the pyserial import        
         self.mockSerial = mockserialpackage.MockSerialPackage()
+        iridiummodem.modem.IridiumModem.useWrapperSerial = False # Stop the modem class from overwriting mockSerial
         gsmmodem.serial_comms.serial = self.mockSerial
         self.modem = iridiummodem.modem.IridiumModem('-- PORT IGNORED DURING TESTS --')        
         self.modem.connect()
@@ -50,7 +51,7 @@ class TestIridiumModemGeneralApi(unittest.TestCase):
         def writeCallbackFunc(data):
             self.assertEqual('AT+CGMI\r', data, 'Invalid data written to modem; expected "{0}", got: "{1}"'.format('AT+CGMI\r', data))
         self.modem.serial.writeCallbackFunc = writeCallbackFunc
-        tests = ['huawei', 'ABCDefgh1235', 'Some Random Manufacturer']
+        tests = ['Iridium', 'ABCDefgh1235', 'Some Random Manufacturer']
         for test in tests:
             self.modem.serial.responseSequence = ['{0}\r\n'.format(test), 'OK\r\n']            
             self.assertEqual(test, self.modem.manufacturer)

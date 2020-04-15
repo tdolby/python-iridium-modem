@@ -27,9 +27,9 @@ class PythonThreeFourSerialWrapper(Serial):
 
     def write(self, data):
         if isinstance(data, bytearray) or isinstance(data, bytes):
-            super(PythonThreeFourSerialWrapper, self).write(data);
+            super(PythonThreeFourSerialWrapper, self).write(data)
         else:
-            super(PythonThreeFourSerialWrapper, self).write(bytes(data, 'iso-8859-1'));
+            super(PythonThreeFourSerialWrapper, self).write(bytes(data, 'iso-8859-1'))
 
     def read(self, size=1):
         retval = super(PythonThreeFourSerialWrapper, self).read(size)
@@ -39,11 +39,11 @@ class PythonThreeFourSerialWrapper(Serial):
 class ISUSBDStatus(object):
     """ Status class to hold message sequence numbers and state flags """
     def __init__(self):
-        self.outboundMSN = -1; # MOMSN
-        self.inboundMSN = -1;  # MTMSN
+        self.outboundMSN = -1 # MOMSN
+        self.inboundMSN = -1  # MTMSN
         self.outboundMsgPresent = False # MO flag
         self.inboundMsgPresent = False  # MT flag
-        self.inboundMessagesQueuedAtServer = -1; # MT Queued, SBDSX only
+        self.inboundMessagesQueuedAtServer = -1 # MT Queued, SBDSX only
 
 class SBDTransferStatus(ISUSBDStatus):
     """ Status class to hold queue length and other transfer response data """
@@ -64,7 +64,7 @@ class SBDTextMessage(SBDMessage):
 
     # Sequence numbers are set by the ISU
     def __init__(self, sequence = -1, text=''):
-        super(SBDTextMessage, self).__init__(sequence);
+        super(SBDTextMessage, self).__init__(sequence)
         self.text = text
 
     @property
@@ -78,7 +78,7 @@ class SBDBinaryMessage(SBDMessage):
 
     # Sequence numbers are set by the ISU
     def __init__(self, sequence = -1, data=bytearray(b'')):
-        super(SBDBinaryMessage, self).__init__(sequence);
+        super(SBDBinaryMessage, self).__init__(sequence)
         self.data = data
 
     @property
@@ -110,6 +110,7 @@ class IridiumModem(GsmModem):
     log = logging.getLogger('gsmmodem.modem.IridiumModem')
     wrapperSerial = None
     virtualIridium = False
+    useWrapperSerial = True # False for testing purposes
     _iridiumEraBases = [0, 1, 2]
     def __init__(self, port, baudrate=19200, incomingCallCallbackFunc=None, smsReceivedCallbackFunc=None, smsStatusReportCallback=None):
         super(IridiumModem, self).__init__(port, baudrate, incomingCallCallbackFunc, smsReceivedCallbackFunc, smsStatusReportCallback)
@@ -154,7 +155,9 @@ class IridiumModem(GsmModem):
         self.SBDIX_REGEX = re.compile(r'^\+SBDIX:\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+)')
 
         self.log.info('Connecting to modem on port %s at %dbps', self.port, self.baudrate)
-        self.wrapperSerial = PythonThreeFourSerialWrapper(self.port, self.baudrate, rtscts=1, timeout=self.timeout)
+        if self.useWrapperSerial:
+            self.wrapperSerial = PythonThreeFourSerialWrapper(self.port, self.baudrate, rtscts=1, timeout=self.timeout)
+
         try:
             super(IridiumModem, self).connect()
         except InvalidStateException:
@@ -182,7 +185,8 @@ class IridiumModem(GsmModem):
 
     def _readLoop(self):
         # Intercept read loop and reassign serial
-        self.serial = self.wrapperSerial
+        if self.useWrapperSerial:
+            self.serial = self.wrapperSerial
         super(IridiumModem, self)._readLoop()
 
     @property
@@ -201,7 +205,7 @@ class IridiumModem(GsmModem):
     def supportedCommands(self):
         """ @return: list of AT commands supported by this modem (without the AT prefix). Returns None for Iridium modems, as they don't seem to support the AT+CLAC command  """
         raise InvalidStateException()
-        return None
+        #return None
 
     def iridiumToDatetime(self, iridiumHex, iridiumEra = 2):
         """ Converts Iridium network time to a datetime object
@@ -214,7 +218,7 @@ class IridiumModem(GsmModem):
         @type datetime.datetime
         """
         iridiumTime = int('0x'+(iridiumHex), 16)
-        iridiumMillis = iridiumTime * 90;
+        iridiumMillis = iridiumTime * 90
         timeMillis = iridiumMillis + self._iridiumEraBases[iridiumEra]
         timeSeconds = timeMillis/1000.0
         dt = datetime.utcfromtimestamp(timeSeconds)
@@ -243,11 +247,11 @@ class IridiumModem(GsmModem):
         """
 
         if sys.version_info[0] == 2:
-            timeDelta = dt - self._epochBaseTime;
+            timeDelta = dt - self._epochBaseTime
             epochSeconds = timeDelta.total_seconds() # This is a float
             epochMilliseconds = epochSeconds * 1000
         else:
-            epochSeconds = dt.timestamp(); # This is a float
+            epochSeconds = dt.timestamp() # This is a float
             epochMilliseconds = epochSeconds * 1000
 
         # Assume era2 (current at time of writing) unless we end up negative

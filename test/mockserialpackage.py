@@ -99,7 +99,7 @@ class MockSerialPackage(object):
             if self.writeCallbackFunc != None:
                 if type(data) == bytes:
                     data = data.decode()
-                self.writeCallbackFunc(data)
+                self.writeCallbackFunc(data) # pylint: disable=not-callable
             self.writeQueue.append(data)
             
         def close(self):
