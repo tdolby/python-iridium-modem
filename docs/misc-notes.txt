@@ -39,3 +39,6 @@ gsmmodem.exceptions.TimeoutException: ['+CMS ERROR:303']
 and with an invalid SIM card:
 
 gsmmodem.exceptions.TimeoutException: ['+CMS ERROR:322']
+
+
+Need pip3 install of python-gsmmodem-new and python-dateutil

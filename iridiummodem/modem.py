@@ -69,7 +69,7 @@ class SBDTextMessage(SBDMessage):
 
     @property
     def readMessage(self):
-        return text
+        return self.text
 
 
 
@@ -101,7 +101,7 @@ class SBDBinaryMessage(SBDMessage):
 
     @property
     def readMessage(self):
-        return data
+        return self.data
 
 
 

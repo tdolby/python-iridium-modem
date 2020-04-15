@@ -61,7 +61,7 @@ class RunUnitTestsCoverage(Command):
 setup(
     name='python-iridium-modem',
     version='0.1.0',
-    description='Iridium phone l;ibrary',
+    description='Iridium phone library',
     long_description=long_description,
 
     # The project's main homepage.
