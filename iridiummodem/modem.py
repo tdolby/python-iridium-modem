@@ -14,27 +14,22 @@ else:
     from datetime import datetime, timezone
     import dateutil.parser
 
-
+TERMINATOR = '\r'
 
 from gsmmodem.modem import GsmModem
 from gsmmodem.exceptions import InvalidStateException, CommandError
 
+class bytesWrapper:
+    dataBuffer = None
+    def __init__(self, dataBuffer=None):
+        self.dataBuffer = dataBuffer
 
-from serial import Serial, EIGHTBITS, PARITY_NONE, STOPBITS_ONE
-class PythonThreeFourSerialWrapper(Serial):
-    def __init__(self, port=None, baudrate=9600, bytesize=EIGHTBITS, parity=PARITY_NONE, stopbits=STOPBITS_ONE, timeout=None, xonxoff=False, rtscts=False, write_timeout=None, dsrdtr=False, inter_byte_timeout=None):
-        super(PythonThreeFourSerialWrapper, self).__init__(port, baudrate, bytesize, parity, stopbits, timeout, xonxoff, rtscts, write_timeout, dsrdtr, inter_byte_timeout)
+    def encode(self):
+        return self.dataBuffer
 
-    def write(self, data):
-        if isinstance(data, bytearray) or isinstance(data, bytes):
-            super(PythonThreeFourSerialWrapper, self).write(data)
-        else:
-            super(PythonThreeFourSerialWrapper, self).write(bytes(data, 'iso-8859-1'))
+    def __add__(self, other):
+        return bytesWrapper(self.dataBuffer+other)
 
-    def read(self, size=1):
-        retval = super(PythonThreeFourSerialWrapper, self).read(size)
-        charString = retval.decode('iso-8859-1')
-        return charString
 
 class ISUSBDStatus(object):
     """ Status class to hold message sequence numbers and state flags """
@@ -108,9 +103,7 @@ class SBDBinaryMessage(SBDMessage):
 
 class IridiumModem(GsmModem):
     log = logging.getLogger('gsmmodem.modem.IridiumModem')
-    wrapperSerial = None
     virtualIridium = False
-    useWrapperSerial = True # False for testing purposes
     _iridiumEraBases = [0, 1, 2]
     def __init__(self, port, baudrate=19200, incomingCallCallbackFunc=None, smsReceivedCallbackFunc=None, smsStatusReportCallback=None):
         super(IridiumModem, self).__init__(port, baudrate, incomingCallCallbackFunc, smsReceivedCallbackFunc, smsStatusReportCallback)
@@ -155,15 +148,12 @@ class IridiumModem(GsmModem):
         self.SBDIX_REGEX = re.compile(r'^\+SBDIX:\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+)')
 
         self.log.info('Connecting to modem on port %s at %dbps', self.port, self.baudrate)
-        if self.useWrapperSerial:
-            self.wrapperSerial = PythonThreeFourSerialWrapper(self.port, self.baudrate, rtscts=1, timeout=self.timeout)
 
         try:
             super(IridiumModem, self).connect()
         except InvalidStateException:
             pass # This will always happen, and we ignore the exceptions and problems
 
-        #self.serial = self.wrapperSerial
         try:
             self.write('ATZ') # reset configuration
             self.write('ATE0') # echo off
@@ -182,12 +172,6 @@ class IridiumModem(GsmModem):
     def _unlockSim(self, pin):
         if pin != None:
             super(IridiumModem, self)._unlockSim(pin)
-
-    def _readLoop(self):
-        # Intercept read loop and reassign serial
-        if self.useWrapperSerial:
-            self.serial = self.wrapperSerial
-        super(IridiumModem, self)._readLoop()
 
     @property
     def smsEncoding(self):
@@ -225,12 +209,14 @@ class IridiumModem(GsmModem):
         # Iridium time is always UTC
         if sys.version_info[0] != 2:
             dt = dt.replace(tzinfo=timezone.utc)
-
+        
         # FP conversion in datetime causes rounding errors to creep in:
         # timeSeconds: 1466973138.01 reads back as .009999
         # Trying to use round() to fix it doesn't solve the problems completely
         # in initial testing, so we take advantage of the fact we only need
         # milliseconds (iridium time is based on 90ms ticks).
+        #
+        # Note that this is hard to reproduce as of 20200419
         if ( dt.microsecond % 10 ) == 9:
             dt = dt.replace(microsecond = (dt.microsecond+1))
 
@@ -408,7 +394,8 @@ class IridiumModem(GsmModem):
         ready = self.SBDWB_READY_REGEX.match(response[0])
         if ready:
             messageData = msg.data + msg.generateChecksum
-            response = self.write(messageData, writeTerm=b'')
+            #response = self.write(messageData, writeTerm=b'')
+            response = self.write(bytesWrapper(messageData), writeTerm=b'')
             code = self.SBDWB_RESP_REGEX.match(response[0])
             if int(code.group(1)) == 0:
                 ret = self.getSBDStatus
@@ -470,3 +457,14 @@ class IridiumModem(GsmModem):
             return ss if ss != 99 else -1
         else:
             raise CommandError("invalid response for AT+CSQ")
+    
+    def write(self, data, waitForResponse=True, timeout=10, parseError=True, writeTerm=TERMINATOR, expectedResponseTermSeq=None):
+        """ Write data to the modem.
+
+        This method ad
+        """
+        #print('In wrapper write')
+        newTimeout = timeout
+        if newTimeout < 30:
+            newTimeout = 30
+        return super(IridiumModem, self).write(data, writeTerm=writeTerm, waitForResponse=waitForResponse, timeout=newTimeout, expectedResponseTermSeq=expectedResponseTermSeq)

@@ -15,6 +15,13 @@ class TestGeo(unittest.TestCase):
         self.assertIsInstance(dt, datetime.datetime)
         self.assertEqual(dt, datetime.datetime(2016, 6, 26, 18, 5, 30, 790000, tzinfo=datetime.timezone.utc))
 
+    def test_iridiumToDatetime_rounding(self):
+        """ Basic test for the iridiumToDatetime method """
+        im = IridiumModem("/port/does/not/exist")
+        dt = im.iridiumToDatetime('2c799555')
+        self.assertIsInstance(dt, datetime.datetime)
+        self.assertEqual(dt, datetime.datetime(2016, 6, 26, 20, 32, 18, 10000, tzinfo=datetime.timezone.utc))
+
     def test_iridiumToDatetime_moreValues(self):
         """ Various value tests for the iridiumToDatetime method """
         im = IridiumModem("/port/does/not/exist")

@@ -1,6 +1,5 @@
-#!/usr/bin/python3.4
+#!/usr/bin/env python3
 
-import serial
 import sys
 import time
 import logging

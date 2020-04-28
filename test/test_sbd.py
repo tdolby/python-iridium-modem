@@ -16,6 +16,17 @@ class TestSbd(unittest.TestCase):
         self.assertEqual(2, len(checksum))
         self.assertEqual(checksum, bytearray.fromhex('0214'))
 
+    def test_validate_binary_checksum(self):
+        """ Basic test for the SBDBinaryMessage.validateChecksum method """
+        binMsg = SBDBinaryMessage(0, b'hello')
+        self.assertTrue(binMsg.validateChecksum(bytearray.fromhex('0214')))
+        self.assertFalse(binMsg.validateChecksum(bytearray.fromhex('0000')))
+
+    def test_binary_readMessage(self):
+        """ Basic test for the SBDBinaryMessage.readMessage method """
+        binMsg = SBDBinaryMessage(0, b'hello')
+        self.assertEqual(b'hello', binMsg.readMessage)
+
     def test_binary_checksum_overflow(self):
         """ Basic test for the SBDBinaryMessage.generateChecksum method """
         binMsg = SBDBinaryMessage(0, bytearray.fromhex('ffff'))
@@ -31,6 +42,12 @@ class TestSbd(unittest.TestCase):
         self.assertIsInstance(checksum, bytearray)
         self.assertEqual(2, len(checksum))
         self.assertEqual(checksum, bytearray.fromhex('14eb'))
+
+    def test_text_readMessage(self):
+        """ Basic test for the SBDTextMessage.readMessage method """
+        txtMsg = SBDTextMessage(0, 'hello')
+        self.assertEqual('hello', txtMsg.readMessage)
+
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)

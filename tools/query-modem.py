@@ -15,6 +15,7 @@ from iridiummodem.modem import IridiumModem
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
     modem = IridiumModem('/dev/ttyACM0', 38400)
+    #modem = IridiumModem('/dev/ttyUSB1', 19200)
     modem.connect()
     try:
         print('modem.imei '+format(modem.imei))
