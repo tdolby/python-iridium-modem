@@ -45,10 +45,12 @@ class ISUSBDStatus(object):
 
 class SBDTransferStatus(ISUSBDStatus):
     """ Status class to hold queue length and other transfer response data """
-    def __init__(self):
-        super(SBDTransferStatus, self).__init__
-        self.lastOutboundTransferStatus = -1 # MO Status
-        self.lastInboundTransferStatus = -1  # MT Status
+    def __init__(self, outboundMSN=-1, inboundMSN=-1,outboundMsgPresent=False,inboundMsgPresent=False,inboundMessagesQueuedAtServer=-1,lastOutboundTransferStatus=-1,lastInboundTransferStatus=-1):
+        super(SBDTransferStatus, self).__init__(outboundMSN,inboundMSN,outboundMsgPresent,inboundMsgPresent,inboundMessagesQueuedAtServer)
+        self.lastOutboundTransferStatus = lastOutboundTransferStatus # MO Status
+        self.lastInboundTransferStatus = lastInboundTransferStatus  # MT Status
+    def __eq__(self, other):
+        return super(SBDTransferStatus, self).__eq__(other) and self.lastOutboundTransferStatus == other.lastOutboundTransferStatus and self.lastInboundTransferStatus == other.lastInboundTransferStatus
 
 class SBDMessage(object):
     """ Abstract Short Burst Data message class """
@@ -100,6 +102,9 @@ class SBDBinaryMessage(SBDMessage):
     @property
     def readMessage(self):
         return self.data
+    
+    def __eq__(self, other):
+        return super(SBDBinaryMessage, self).__eq__(other) and self.data == other.data
 
 
 

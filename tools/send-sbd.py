@@ -31,10 +31,11 @@ if __name__ == '__main__':
         pass
     modem.clearIsuSBDOutboundMessage
     #msgToSend = SBDBinaryMessage(data=b'hello')
-    msgToSend = SBDBinaryMessage(data=b'\x07\x08\x09\x10\x11')
+    msgToSend = SBDBinaryMessage(data=b'\x07\x08\x19\x17\x17\x12\x13')
     modem.writeSBDMessageToIsu(msgToSend)
     modem.getSBDStatus
     modem.initiateOldSBDSession
+    modem.initiateSBDSession
     #modem.clearIsuSBDInboundMessage
     modem.getSBDStatus
     modem.copySentSBDToReceived
