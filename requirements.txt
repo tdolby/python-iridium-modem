@@ -1,2 +1,2 @@
 pyserial>=2.6
-dateutil
+dateutil>=2.8
