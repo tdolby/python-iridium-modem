@@ -1,5 +1,6 @@
-python-iridium-modem 
+python-iridium-modem ![travis status](https://travis-ci.org/tdolby/python-iridium-modem.svg?branch=master)
 ===============
+
 *Iridium modem module for Python built on pthyon-gsmmodem*
 
 python-iridium-modem is a module that extends the python-gsmmodem package
