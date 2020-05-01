@@ -8,11 +8,8 @@ import threading
 import re
 import math
 
-if sys.version_info[0] == 2:
-    from datetime import datetime
-else:
-    from datetime import datetime, timezone
-    import dateutil.parser
+from datetime import datetime, timezone
+import dateutil.parser
 
 TERMINATOR = '\r'
 
@@ -116,16 +113,10 @@ class IridiumModem(GsmModem):
     def __init__(self, port, baudrate=19200, incomingCallCallbackFunc=None, smsReceivedCallbackFunc=None, smsStatusReportCallback=None):
         super(IridiumModem, self).__init__(port, baudrate, incomingCallCallbackFunc, smsReceivedCallbackFunc, smsStatusReportCallback)
         self.timeout = 50
-        if sys.version_info[0] == 2:
-            self._epochBaseTime = datetime.strptime("1970-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S")
-            self._iridiumEraBases[0] = (((datetime.strptime("1996-06-01T00:00:11", "%Y-%m-%dT%H:%M:%S")) - self._epochBaseTime).total_seconds() ) * 1000
-            self._iridiumEraBases[1] = (((datetime.strptime("2007-03-08T03:50:21", "%Y-%m-%dT%H:%M:%S")) - self._epochBaseTime).total_seconds() ) * 1000
-            self._iridiumEraBases[2] = (((datetime.strptime("2014-05-11T14:23:55", "%Y-%m-%dT%H:%M:%S")) - self._epochBaseTime).total_seconds() ) * 1000
-        else:
-            self._epochBaseTime = dateutil.parser.parse("1970-01-01T00:00:00.000Z")
-            self._iridiumEraBases[0] = (((dateutil.parser.parse("1996-06-01T00:00:11.000Z")) - self._epochBaseTime).total_seconds() ) * 1000
-            self._iridiumEraBases[1] = (((dateutil.parser.parse("2007-03-08T03:50:21.000Z")) - self._epochBaseTime).total_seconds() ) * 1000
-            self._iridiumEraBases[2] = (((dateutil.parser.parse("2014-05-11T14:23:55.000Z")) - self._epochBaseTime).total_seconds() ) * 1000
+        self._epochBaseTime = dateutil.parser.parse("1970-01-01T00:00:00.000Z")
+        self._iridiumEraBases[0] = (((dateutil.parser.parse("1996-06-01T00:00:11.000Z")) - self._epochBaseTime).total_seconds() ) * 1000
+        self._iridiumEraBases[1] = (((dateutil.parser.parse("2007-03-08T03:50:21.000Z")) - self._epochBaseTime).total_seconds() ) * 1000
+        self._iridiumEraBases[2] = (((dateutil.parser.parse("2014-05-11T14:23:55.000Z")) - self._epochBaseTime).total_seconds() ) * 1000
 
     def connect(self, pin=None):
         """ Opens the port and initializes the modem and SIM card
@@ -215,8 +206,7 @@ class IridiumModem(GsmModem):
         timeSeconds = timeMillis/1000.0
         dt = datetime.utcfromtimestamp(timeSeconds)
         # Iridium time is always UTC
-        if sys.version_info[0] != 2:
-            dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=timezone.utc)
         
         # FP conversion in datetime causes rounding errors to creep in:
         # timeSeconds: 1466973138.01 reads back as .009999
@@ -240,13 +230,8 @@ class IridiumModem(GsmModem):
         @type int
         """
 
-        if sys.version_info[0] == 2:
-            timeDelta = dt - self._epochBaseTime
-            epochSeconds = timeDelta.total_seconds() # This is a float
-            epochMilliseconds = epochSeconds * 1000
-        else:
-            epochSeconds = dt.timestamp() # This is a float
-            epochMilliseconds = epochSeconds * 1000
+        epochSeconds = dt.timestamp() # This is a float
+        epochMilliseconds = epochSeconds * 1000
 
         # Assume era2 (current at time of writing) unless we end up negative
         iridiumMillis = epochMilliseconds - self._iridiumEraBases[2]
@@ -418,10 +403,7 @@ class IridiumModem(GsmModem):
     def readSBDMessageFromIsu(self):
         ret = self.getSBDStatus # Get the sequence number
         response = self.write('AT+SBDRB')
-        if sys.version_info[0] == 2:
-            byteResponse = bytearray(response[0], 'iso-8859-1')
-        else:
-            byteResponse = bytes(response[0], 'iso-8859-1')
+        byteResponse = bytes(response[0], 'iso-8859-1')
         if len(byteResponse) < 4:
             raise CommandError()
         msgLen = int(byteResponse[0]) * 256
