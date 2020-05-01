@@ -116,6 +116,17 @@ class TestIridiumModemGeneralApi(unittest.TestCase):
         self.modem.serial.responseSequence = ['{0}\r\n'.format('+SBDIX: 2, 6, 0, 0, 0, 0\r\n'), 'OK\r\n']
         self.assertEqual(SBDTransferStatus(6, 0, False, False, 0, 2, 0), self.modem.initiateSBDSession)
 
+    def test_initiateSBDSession_messagePresent(self):
+        # Used to check the right command is sent to the modem
+        def writeCallbackFunc(data):
+            self.assertEqual('AT+SBDIX\r', data, 'Invalid data written to modem; expected "{0}", got: "{1}"'.format('AT+SBDIX\r', data))
+        
+        self.modem.serial.writeCallbackFunc = writeCallbackFunc
+        
+        # Set fake response
+        self.modem.serial.responseSequence = ['{0}\r\n'.format('+SBDIX: 13, 6, 0, 0, 97, 0\r\n'), 'OK\r\n']
+        self.assertEqual(SBDTransferStatus(6, 0, True, True, 0, 13, 0), self.modem.initiateSBDSession)
+
     def test_initiateOldSBDSession(self):
         # Used to check the right command is sent to the modem
         def writeCallbackFunc(data):
@@ -126,6 +137,17 @@ class TestIridiumModemGeneralApi(unittest.TestCase):
         # Set fake response
         self.modem.serial.responseSequence = ['{0}\r\n'.format('+SBDI: 1, 5, 0, 0, 0, 0\r\n'), 'OK\r\n']
         self.assertEqual(SBDTransferStatus(5, 0, False, False, 0, 0, 0), self.modem.initiateOldSBDSession)
+
+    def test_initiateOldSBDSession_messagesPresent(self):
+        # Used to check the right command is sent to the modem
+        def writeCallbackFunc(data):
+            self.assertEqual('AT+SBDI\r', data, 'Invalid data written to modem; expected "{0}", got: "{1}"'.format('AT+SBDI\r', data))
+        
+        self.modem.serial.writeCallbackFunc = writeCallbackFunc
+        
+        # Set fake response
+        self.modem.serial.responseSequence = ['{0}\r\n'.format('+SBDI: 2, 5, 0, 0, 1, 0\r\n'), 'OK\r\n']
+        self.assertEqual(SBDTransferStatus(5, 0, True, True, 0, 5, 0), self.modem.initiateOldSBDSession)
 
     def test_writeSBDMessageToIsu(self):
         # Set fake response
@@ -174,7 +196,7 @@ class TestIridiumModemGeneralApi(unittest.TestCase):
     def test_clearIsuSBDOutboundMessage(self):
         # Used to check the right command is sent to the modem
         def writeCallbackFunc(data):
-            self.assertEqual('AT+SBDD0\r', data, 'Invalid data written to modem; expected "{0}", got: "{1}"'.format('AT+SBDD0\r', data))
+            self.assertEqual('AT+SBDD0\r', data, 'Invalid data written to modem; expected "{0}", got: "{1}"'.format('AT+SBDD\r', data))
         
         self.modem.serial.writeCallbackFunc = writeCallbackFunc
         
@@ -182,9 +204,6 @@ class TestIridiumModemGeneralApi(unittest.TestCase):
         self.modem.serial.responseSequence = ['0\r\n', 'OK\r\n']
         # Need to fix the return value before adding assertions for the method itself
         self.modem.clearIsuSBDOutboundMessage
-
-
-
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
