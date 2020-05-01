@@ -18,6 +18,7 @@ PYTHON_VERSION = sys.version_info[0]
 
 import gsmmodem.serial_comms
 import iridiummodem.modem
+from iridiummodem.modem import ISUSBDStatus
 import gsmmodem.pdu
 from gsmmodem.util import SimpleOffsetTzInfo
 
@@ -91,6 +92,18 @@ class TestIridiumModemGeneralApi(unittest.TestCase):
         # Set fake response
         self.modem.serial.responseSequence = ['{0}\r\n'.format('-MSSTM: 7b8bd31d\r\n'), 'OK\r\n']            
         self.assertEqual(datetime(2020, 4, 8, 17, 25, 35, 530000, tzinfo=timezone.utc), self.modem.systemTime)
+
+
+    def test_sbdStatus(self):
+        # Used to check the right command is sent to the modem
+        def writeCallbackFunc(data):
+            self.assertEqual('AT+SBDS\r', data, 'Invalid data written to modem; expected "{0}", got: "{1}"'.format('AT+SBDS\r', data))
+        
+        self.modem.serial.writeCallbackFunc = writeCallbackFunc
+        
+        # Set fake response
+        self.modem.serial.responseSequence = ['{0}\r\n'.format('+SBDS:  1, 5, 0, -1\r\n'), 'OK\r\n']            
+        self.assertEqual(ISUSBDStatus(5, -1, True, False, -1), self.modem.getSBDStatus)
 
 
 if __name__ == "__main__":

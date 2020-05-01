@@ -33,12 +33,15 @@ class bytesWrapper:
 
 class ISUSBDStatus(object):
     """ Status class to hold message sequence numbers and state flags """
-    def __init__(self):
-        self.outboundMSN = -1 # MOMSN
-        self.inboundMSN = -1  # MTMSN
-        self.outboundMsgPresent = False # MO flag
-        self.inboundMsgPresent = False  # MT flag
-        self.inboundMessagesQueuedAtServer = -1 # MT Queued, SBDSX only
+    def __init__(self, outboundMSN=-1, inboundMSN=-1,outboundMsgPresent=False,inboundMsgPresent=False,inboundMessagesQueuedAtServer=-1):
+        self.outboundMSN = outboundMSN # MOMSN
+        self.inboundMSN = inboundMSN # MTMSN
+        self.outboundMsgPresent = outboundMsgPresent # MO flag
+        self.inboundMsgPresent =  inboundMsgPresent # MT flag
+        self.inboundMessagesQueuedAtServer = inboundMessagesQueuedAtServer # MT Queued, SBDSX only
+
+    def __eq__(self, other):
+        return self.outboundMSN == other.outboundMSN and self.inboundMSN == other.inboundMSN and self.outboundMsgPresent == other.outboundMsgPresent and self.inboundMsgPresent == other.inboundMsgPresent and self.inboundMessagesQueuedAtServer == other.inboundMessagesQueuedAtServer
 
 class SBDTransferStatus(ISUSBDStatus):
     """ Status class to hold queue length and other transfer response data """
