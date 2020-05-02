@@ -3,3 +3,6 @@ Trevor Dolby <trevor.dolby@googlemail.com>
 Thanks to Francois Aucamp and everyone else who built python-gsmmodem, and
 also to Michael Ashley <http://newt.phys.unsw.edu.au/~mcba/iridiumLinux.html>
 for the documentation on how to get PPP working.
+
+See https://github.com/babca/python-gsmmodem/blob/master/AUTHORS for the full
+list of authors for python-gsmmodem, on which this project is based.

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import serial
 import sys
@@ -14,13 +14,16 @@ import dateutil.parser
 from iridiummodem.modem import IridiumModem
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Start a voice call')
+    parser = argparse.ArgumentParser(description='Display current Iridium geolocation information')
     parser.add_argument('--dev', dest='dev', default='/dev/ttyUSB0',
                         help='serial device name (default: %(default)s)')
+    parser.add_argument('-d', '--debug',  action='store_true', help='dump modem debug information (for python-iridium-modem development)')    
     
     args = parser.parse_args()
 
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+    if args.debug:
+        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+    
     modem = IridiumModem(args.dev, 19200)
     modem.connect()
 
