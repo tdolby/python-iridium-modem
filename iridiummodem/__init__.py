@@ -6,4 +6,4 @@ Built on top of python-gsmmodem by Francois Aucamp <francois.aucamp@gmail.com>
 @license: LGPLv3+
 """
 
-from .modem import IridiumModem
+from iridiummodem.modem import IridiumModem

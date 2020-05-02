@@ -11,8 +11,6 @@ import argparse
 from datetime import datetime
 import dateutil.parser
 
-sys.path.append('..')
-
 from iridiummodem.modem import IridiumModem
 
 if __name__ == '__main__':
