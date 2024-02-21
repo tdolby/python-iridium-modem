@@ -18,6 +18,9 @@ documented, but the python GSM module wasn't constructed to handle them.
 See general [Iridium notes](docs/iridium-notes.md) for background information
 and random notes from experiments.
 
+Remove python2
+Update everything!
+
 Requirements
 ------------
 
