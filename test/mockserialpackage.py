@@ -16,7 +16,10 @@ import iridiummodem.modem
 import gsmmodem.pdu
 from gsmmodem.util import SimpleOffsetTzInfo
 
-import fakeiridiummodems
+# "from ." seems to work for pytest but not the vscode linter
+#from . import fakeiridiummodems
+sys.path.append('..')
+from test import fakeiridiummodems
 
 # Silence logging exceptions
 logging.raiseExceptions = False

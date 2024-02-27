@@ -22,7 +22,10 @@ from iridiummodem.modem import ISUSBDStatus, SBDTransferStatus, SBDBinaryMessage
 import gsmmodem.pdu
 from gsmmodem.util import SimpleOffsetTzInfo
 
-import fakeiridiummodems, mockserialpackage
+# "from ." seems to work for pytest but not the vscode linter
+#from . import fakeiridiummodems, mockserialpackage
+sys.path.append('..')
+from test import fakeiridiummodems, mockserialpackage
 
 # Silence logging exceptions
 logging.raiseExceptions = False
