@@ -14,8 +14,9 @@ from iridiummodem.modem import IridiumModem
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
-    modem = IridiumModem('/dev/ttyUSB0', 19200)
-    #modem = IridiumModem('/dev/ttyACM0', 38400)
+    #modem = IridiumModem('/dev/ttyS0', 19200)
+    #modem = IridiumModem('/dev/ttyUSB0', 19200)
+    modem = IridiumModem('/dev/ttyACM0', 38400)
     modem.connect()
     try:
         print('modem.imei '+format(modem.imei))
@@ -25,8 +26,8 @@ if __name__ == '__main__':
     except:
         pass
     try:
-    	print('modem.geoLocation '+format(modem.geoLocation))
-    	sys.stdout.flush()
+        print('modem.geoLocation '+format(modem.geoLocation))
+        sys.stdout.flush()
     except:
         pass
 	
