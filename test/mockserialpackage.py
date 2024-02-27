@@ -16,7 +16,7 @@ import iridiummodem.modem
 import gsmmodem.pdu
 from gsmmodem.util import SimpleOffsetTzInfo
 
-from . import fakeiridiummodems
+import fakeiridiummodems
 
 # Silence logging exceptions
 logging.raiseExceptions = False

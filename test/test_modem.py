@@ -22,7 +22,7 @@ from iridiummodem.modem import ISUSBDStatus, SBDTransferStatus, SBDBinaryMessage
 import gsmmodem.pdu
 from gsmmodem.util import SimpleOffsetTzInfo
 
-from . import fakeiridiummodems, mockserialpackage
+import fakeiridiummodems, mockserialpackage
 
 # Silence logging exceptions
 logging.raiseExceptions = False
